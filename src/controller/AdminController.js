@@ -118,7 +118,7 @@ exports.forgotPassword = async (req, res) => {
         } else {
             res.status(404).json({
                 status: code[400],
-                message: responseMessage.USER_NOT_EXIST,
+                message: responseMessage.ADMIN_NOT_EXIST,
             });
         }
     } catch (err) {
@@ -135,10 +135,10 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
     try {
         const { forgotId } = req.body
-        const user = await Admin.findOne({ 'resetPassword.forgotId': forgotId, 'resetPassword.ExpiresIn': { $gt: Date.now() } });
-        if (user) {
+        const existAdmin = await Admin.findOne({ 'resetPassword.forgotId': forgotId, 'resetPassword.ExpiresIn': { $gt: Date.now() } });
+        if (existAdmin) {
             const { newPassword } = req.body;
-            let existPassword = await bcrypt.compare(newPassword, user.password);
+            let existPassword = await bcrypt.compare(newPassword, existAdmin.password);
             if (existPassword) {
                 return res.status(400).json({
                     status: code[400],
@@ -149,7 +149,7 @@ exports.resetPassword = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const hashPass = await bcrypt.hash(newPassword, salt);
             const result = await Admin.findByIdAndUpdate(
-                { _id: user._id },
+                { _id: existAdmin._id },
                 { $set: { password: hashPass, 'resetPassword.forgotId': null, 'resetPassword.ExpiresIn': null } },
                 { new: true }
             );
@@ -173,4 +173,4 @@ exports.resetPassword = async (req, res) => {
         });
     }
 };
-  //#endregion
+//#endregion

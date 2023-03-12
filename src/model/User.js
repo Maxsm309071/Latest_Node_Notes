@@ -21,11 +21,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    forgotId: {
-      type: String,
-      default: null,
-      required: false,
-    },
+    resetPassword: {
+      forgotId: {
+          type: String,
+          default: null,
+          required: false,
+      },
+      ExpiresIn: {
+          type: Date,
+          required: false,
+      },
+  },
     resetPasswordExpires: {
       type: Date,
       required: false,
